@@ -1,0 +1,9 @@
+{
+  "altitude": 60.0,
+  "hfov": 73.74,
+  "vfov": 53.13,
+  "h_res": 5472,
+  "v_res": 3648,
+  "sidelap": 70.0,
+  "frontlap": 80.0
+}

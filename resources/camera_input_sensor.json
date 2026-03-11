@@ -1,0 +1,10 @@
+{
+  "altitude": 60,
+  "sensor_w": 13.2,
+  "sensor_h": 8.8,
+  "focal_length": 8.8,
+  "img_w": 5472,
+  "img_h": 3648,
+  "sidelap": 70,
+  "frontlap": 80
+}

@@ -1,0 +1,14 @@
+{
+  "trajectory": [
+    {"lat": 40.57353, "lon": 22.9970623, "alt": 60},
+    {"lat": 40.580472, "lon": 22.9977901, "alt": 60}
+  ],
+  "reference_point": {
+    "lat": 40.57353,
+    "lon": 22.9970623,
+    "alt": 0
+  },
+  "provider": "google",
+  "interpolation_step": 10,
+  "vertical_step": 3
+}
