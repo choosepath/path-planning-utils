@@ -1,0 +1,44 @@
+# ==========================================
+# API Keys & Secrets (CRITICAL)
+# ==========================================
+#google_api_key.txt
+.env
+
+# ==========================================
+# Python Environments & Cache
+# ==========================================
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+env/
+.venv/
+lib/
+lib64/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# ==========================================
+# Docker
+# ==========================================
+# (Optional) Ignore local docker compose overrides
+docker-compose.override.yml
+
+# ==========================================
+# OS Generated Files
+# ==========================================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# ==========================================
+# IDEs and Editors
+# ==========================================
+.vscode/
+.idea/
+*.swp
+*.swo
