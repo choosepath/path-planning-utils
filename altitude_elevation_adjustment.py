@@ -3,6 +3,10 @@ import requests
 from abc import ABC, abstractmethod
 from math import ceil
 from geopy.distance import geodesic
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 
 # ==========================================
@@ -27,8 +31,6 @@ class OpenMeteoProvider(ElevationProvider):
 
             url = "https://api.open-meteo.com/v1/elevation"
 
-            # Using POST is better for large data, but GET is standard for this free API.
-            # reducing chunk_size ensures the URL stays short.
             try:
                 r = requests.get(url, params={
                     "latitude": ",".join(map(str, lats)),
@@ -40,30 +42,28 @@ class OpenMeteoProvider(ElevationProvider):
 
             except Exception as e:
                 print(f"[OpenMeteo] Error: {e}")
-                # Fill with 0.0s to maintain index alignment
                 elevations.extend([0.0] * len(chunk))
 
         return elevations
 
+
 class GoogleMapsProvider(ElevationProvider):
-    def __init__(self, api_key_or_file):
+    def __init__(self, api_key=None):
         """
         Args:
-            api_key_or_file (str): Can be a raw API Key string OR a path to a file (e.g. 'google_api_key.txt')
+            api_key (str, optional): The raw API key. If not provided,
+                                     it automatically falls back to the .env file.
         """
-        if os.path.isfile(api_key_or_file):
-            try:
-                with open(api_key_or_file, "r") as f:
-                    self.api_key = f.read().strip()
-            except Exception as e:
-                print(f"[Google] Error reading key file: {e}")
-                self.api_key = None
-        else:
-            self.api_key = api_key_or_file.strip()
+        # 1st Priority: Passed explicitly in the code/API request
+        # 2nd Priority: Loaded from the .env file / OS environment
+        self.api_key = api_key or os.getenv('GOOGLE_API_KEY')
+
+        if not self.api_key:
+            print("[Google] Warning: No API key provided and GOOGLE_API_KEY not found in environment.")
 
     def get_elevations(self, coordinates):
         if not self.api_key:
-            print("[Google] Error: No valid API Key loaded.")
+            print("[Google] Error: Cannot fetch elevations. No valid API Key loaded.")
             return [0.0] * len(coordinates)
 
         elevations = []
@@ -117,10 +117,8 @@ def adjust_trajectory_to_terrain(trajectory, reference_point, provider: Elevatio
         # Calculate horizontal distance
         dist = geodesic((p1['lat'], p1['lon']), (p2['lat'], p2['lon'])).meters
 
-        # --- UPDATE: Handle vertical-only movements explicitly ---
+        # Handle vertical-only movements explicitly
         if dist == 0.0:
-            # Same lat/lon (e.g., vertical climb/descent).
-            # We skip horizontal interpolation completely.
             pass
         elif dist > interpolation_step:
             num_segments = ceil(dist / interpolation_step)
@@ -200,8 +198,8 @@ if __name__ == "__main__":
         {'lat': 40.580472, 'lon': 22.9977901, 'alt': 60}  # Horizontal Flight
     ]
 
-    # my_provider = OpenMeteoProvider()
-    my_provider = GoogleMapsProvider('google_api_key.txt')
+    # Initialize the provider (automatically reads from .env)
+    my_provider = GoogleMapsProvider()
 
     result = adjust_trajectory_to_terrain(
         trajectory=mission,
