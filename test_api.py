@@ -11,9 +11,10 @@ TEST_CASES = {
     "time_input.json": "/api/flight-time",
     "polygon_input.json": "/api/area/polygon",
     "circle_input.json": "/api/area/circle",
-    "camera_input_fov.json": "/api/camera",  # <-- FOV Method Test
-    "camera_input_sensor.json": "/api/camera",  # <-- Sensor Method Test
-    "altitude_input.json": "/api/adjust-altitude"
+    "camera_input_fov.json": "/api/camera",
+    "camera_input_sensor.json": "/api/camera",
+    "altitude_input.json": "/api/adjust-altitude",
+    "weather_input.json": "/api/weather-filter"
 }
 
 

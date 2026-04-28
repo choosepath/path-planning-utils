@@ -5,6 +5,25 @@ import time_estimation
 import areas
 import camera_related_utils
 import altitude_elevation_adjustment as alt_adj
+import weather_filtering
+
+
+def process_fleet_filtering(json_input):
+    """Transforms JSON, filters drone fleet by weather, returns JSON."""
+    data = json.loads(json_input)
+
+    # Extract coordinates (assuming they are passed in a "poi" object)
+    poi = data.get('poi', {})
+    lat = poi.get('lat')
+    lon = poi.get('lon')
+    vehicles = data.get('vehicles', [])
+
+    if lat is None or lon is None:
+        raise ValueError("Missing 'lat' or 'lon' in 'poi' object.")
+
+    result = weather_filtering.filter_fleet_for_mission(lat, lon, vehicles)
+
+    return json.dumps(result)
 
 
 def process_time_estimation(json_input):

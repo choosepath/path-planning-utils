@@ -53,5 +53,14 @@ def adjust_altitude_endpoint():
     except Exception as e:
         return create_json_response(json.dumps({"error": str(e)}), 500)
 
+@app.route('/api/weather-filter', methods=['POST'])
+def filter_fleet_endpoint():
+    try:
+        raw_json = request.get_data(as_text=True)
+        result_json = serializers.process_fleet_filtering(raw_json)
+        return create_json_response(result_json)
+    except Exception as e:
+        return create_json_response(json.dumps({"error": str(e)}), 400)
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

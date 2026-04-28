@@ -164,3 +164,33 @@ Densifies a trajectory and adjusts altitudes to maintain constant AGL over terra
   
   *(Reference: `altitude_input.json`)*
   *(Note: Set `"provider": "open-meteo"` to use the free Open-Meteo API instead of Google Maps).*
+
+### 5. Fleet Weather Filtering (`/api/weather-filter`)
+
+Evaluates current, real-time weather conditions at a specific Location (POI) using OpenWeatherMap, and filters a provided list of drones to return only those capable of surviving the conditions. 
+* **Filters applied**:
+    * Operational temperature ranges (`temp_range_c`).
+    * Maximum wind resistance (`max_wind_ms`).
+    * Minimum required IP (Ingress Protection) rating mapped dynamically to precipitation intensity (mm/h).
+* **Payload**:
+  ```json
+  {
+    "poi": {
+      "lat": 40.57353,
+      "lon": 22.9970623
+    },
+    "vehicles": [
+      {
+        "id": "DJI_Mavic_3_Enterprise",
+        "temp_range_c": [-10, 40],
+        "max_wind_ms": 12.0,
+        "ip_rating": "IP43"
+      },
+      {
+        "id": "DJI_Matrice_300_RTK",
+        "temp_range_c": [-20, 50],
+        "max_wind_ms": 15.0,
+        "ip_rating": "IP45"
+      }
+    ]
+  }

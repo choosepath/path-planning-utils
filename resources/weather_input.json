@@ -1,0 +1,26 @@
+{
+  "poi": {
+    "lat": 37.9838,
+    "lon": 23.7275
+  },
+  "vehicles": [
+    {
+      "id": "Standard_Drone",
+      "ip_rating": "IP43",
+      "max_wind_ms": 10.0,
+      "temp_range_c": [0, 40]
+    },
+    {
+      "id": "Rugged_Rover",
+      "ip_rating": "IP67",
+      "max_wind_ms": 25.0,
+      "temp_range_c": [-20, 55]
+    },
+    {
+      "id": "Indoor_Bot",
+      "ip_rating": "IP20",
+      "max_wind_ms": 2.0,
+      "temp_range_c": [10, 30]
+    }
+  ]
+}
