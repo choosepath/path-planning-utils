@@ -8,6 +8,7 @@ import altitude_elevation_adjustment as alt_adj
 import weather_filtering
 import transitioning_waypoints
 
+
 def process_trajectory_transitions(json_input):
     """Parses JSON for stepped-altitude transitions and returns the calculated trajectory."""
     data = json.loads(json_input)
@@ -17,6 +18,9 @@ def process_trajectory_transitions(json_input):
     offset_level = data.get('offset_level', 0)
     offset_step = data.get('offset_step', 5.0)
 
+    # New optional parameter (defaults to None if missing)
+    transitioning_altitude = data.get('transitioning_altitude')
+
     if not start_point or not end_point:
         raise ValueError("Missing 'start_point' or 'end_point' in payload.")
 
@@ -24,7 +28,8 @@ def process_trajectory_transitions(json_input):
         start_point=start_point,
         end_point=end_point,
         offset_level=offset_level,
-        offset_step=offset_step
+        offset_step=offset_step,
+        transitioning_altitude=transitioning_altitude  # Passed here
     )
 
     return json.dumps({"trajectory": trajectory})

@@ -26,10 +26,12 @@ A Python toolkit and REST API for advanced UAV mission planning. This project pr
     ├── altitude_elevation_adjustment.py   # Terrain-following logic and API providers
     ├── weather_filtering.py               # Fleet filtering based on OpenWeatherMap data
     ├── test_api.py                        # Automated testing script
+    ├── transitioning_waypoints.py         # Generates transitioning stepped trajectories between two points
     ├── Dockerfile                         # Containerization instructions using Python 3.11
     ├── requirements.txt                   # Python dependencies (Flask, geopy, pyproj, requests, python-dotenv)
     ├── .env                               # Environment variables (API keys)
     └── resources/                         # Directory containing JSON test payloads
+        ├── transitioning_input.json
         ├── time_input.json
         ├── polygon_input.json
         ├── circle_input.json
@@ -215,12 +217,16 @@ Evaluates current, real-time weather conditions at a specific Location (POI) usi
   
 ### 6. Stepped-Altitude Transitions (`/api/transitions/stepped`)
 
-Generates a safe connecting transition between two points using a Manhattan-style stepped routing method. Forces the UAV to ascend vertically to a safe cruising altitude, transit horizontally, and descend. Includes offset parameters for swarm deconfliction.
+Generates a safe connecting transition between two points using a Manhattan-style stepped routing method. Forces the UAV to ascend or descend vertically to a safe cruising altitude, transit horizontally, and then transition vertically to the target. Includes offset parameters for swarm deconfliction.
 * **Payload**:
   ```json
   {
     "start_point": {"lat": 44.25, "lon": 28.35, "alt": 5},
     "end_point": {"lat": 44.32, "lon": 28.60, "alt": 60},
     "offset_level": 1,
-    "offset_step": 5.0
+    "offset_step": 5.0,
+    "transitioning_altitude": 100
   }
+  
+  *(Reference: transitions_input.json)
+  *(Note: offset_level determines the altitude tier (0, 1, 2, etc.), and offset_step is the vertical separation between tiers in meters. transitioning_altitude is optional; if omitted, the system defaults to the highest altitude of the two points).

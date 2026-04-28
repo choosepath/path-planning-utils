@@ -2,5 +2,6 @@
   "start_point": {"lat": 44.25, "lon": 28.35, "alt": 5},
   "end_point": {"lat": 44.32, "lon": 28.60, "alt": 60},
   "offset_level": 1,
-  "offset_step": 5.0
+  "offset_step": 5.0,
+  "transitioning_altitude": 100
 }
