@@ -212,3 +212,15 @@ Evaluates current, real-time weather conditions at a specific Location (POI) usi
   
   *(Reference: `weather_input.json`)*
   *(Note: Requires `OPENWEATHER_API_KEY` to be set in your `.env` file).*
+  
+### 6. Stepped-Altitude Transitions (`/api/transitions/stepped`)
+
+Generates a safe connecting transition between two points using a Manhattan-style stepped routing method. Forces the UAV to ascend vertically to a safe cruising altitude, transit horizontally, and descend. Includes offset parameters for swarm deconfliction.
+* **Payload**:
+  ```json
+  {
+    "start_point": {"lat": 44.25, "lon": 28.35, "alt": 5},
+    "end_point": {"lat": 44.32, "lon": 28.60, "alt": 60},
+    "offset_level": 1,
+    "offset_step": 5.0
+  }

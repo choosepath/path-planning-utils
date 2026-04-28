@@ -14,7 +14,8 @@ TEST_CASES = {
     "camera_input_fov.json": "/api/camera",
     "camera_input_sensor.json": "/api/camera",
     "altitude_input.json": "/api/adjust-altitude",
-    "weather_input.json": "/api/weather-filter"
+    "weather_input.json": "/api/weather-filter",
+    "transitions_input.json": "/api/transitions/stepped"
 }
 
 

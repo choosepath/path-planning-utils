@@ -6,7 +6,28 @@ import areas
 import camera_related_utils
 import altitude_elevation_adjustment as alt_adj
 import weather_filtering
+import transitioning_waypoints
 
+def process_trajectory_transitions(json_input):
+    """Parses JSON for stepped-altitude transitions and returns the calculated trajectory."""
+    data = json.loads(json_input)
+
+    start_point = data.get('start_point')
+    end_point = data.get('end_point')
+    offset_level = data.get('offset_level', 0)
+    offset_step = data.get('offset_step', 5.0)
+
+    if not start_point or not end_point:
+        raise ValueError("Missing 'start_point' or 'end_point' in payload.")
+
+    trajectory = transitioning_waypoints.generate_connecting_trajectory(
+        start_point=start_point,
+        end_point=end_point,
+        offset_level=offset_level,
+        offset_step=offset_step
+    )
+
+    return json.dumps({"trajectory": trajectory})
 
 def process_fleet_filtering(json_input):
     """Transforms JSON, filters drone fleet by weather, returns JSON."""

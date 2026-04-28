@@ -62,5 +62,14 @@ def filter_fleet_endpoint():
     except Exception as e:
         return create_json_response(json.dumps({"error": str(e)}), 400)
 
+@app.route('/api/transitions/stepped', methods=['POST'])
+def transitions_stepped_endpoint():
+    try:
+        raw_json = request.get_data(as_text=True)
+        result_json = serializers.process_trajectory_transitions(raw_json)
+        return create_json_response(result_json)
+    except Exception as e:
+        return create_json_response(json.dumps({"error": str(e)}), 400)
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
