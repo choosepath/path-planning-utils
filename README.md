@@ -1,6 +1,6 @@
-# Path Planning and ChoosePath Utilitlies - API
+# Path Planning and ChoosePath Utilities - API
 
-A Python toolkit and REST API for advanced UAV mission planning. This project provides high-precision calculations for flight time estimation, geodesic areas, photogrammetry grids, and intelligent terrain-following trajectory adjustments.
+A Python toolkit and REST API for advanced UAV mission planning. This project provides high-precision calculations for flight time estimation, geodesic areas, photogrammetry grids, intelligent terrain-following trajectory adjustments, and weather-based fleet filtering.
 
 ## Features
 
@@ -11,6 +11,7 @@ A Python toolkit and REST API for advanced UAV mission planning. This project pr
     * Preserves all original mission waypoints.
     * Dynamically interpolates intermediate waypoints based on terrain changes.
     * Modular Strategy Pattern supporting both **Open-Meteo (Free)** and **Google Maps** Elevation APIs.
+* **Fleet Weather Filtering**: Evaluates real-time weather at a POI to filter out drones that cannot safely operate in current temperature, wind, or precipitation conditions.
 
 ---
 
@@ -23,17 +24,19 @@ A Python toolkit and REST API for advanced UAV mission planning. This project pr
     ├── areas.py                           # Geodesic and Cartesian area calculations
     ├── camera_related_utils.py            # Photogrammetry and GSD formulas
     ├── altitude_elevation_adjustment.py   # Terrain-following logic and API providers
+    ├── weather_filtering.py               # Fleet filtering based on OpenWeatherMap data
     ├── test_api.py                        # Automated testing script
     ├── Dockerfile                         # Containerization instructions using Python 3.11
-    ├── requirements.txt                   # Python dependencies (Flask, geopy, pyproj, requests)
-    ├── google_api_key.txt                 # (Optional) Your Google Maps API key
+    ├── requirements.txt                   # Python dependencies (Flask, geopy, pyproj, requests, python-dotenv)
+    ├── .env                               # Environment variables (API keys)
     └── resources/                         # Directory containing JSON test payloads
         ├── time_input.json
         ├── polygon_input.json
         ├── circle_input.json
         ├── camera_input_fov.json
         ├── camera_input_sensor.json
-        └── altitude_input.json
+        ├── altitude_input.json
+        └── weather_input.json
 
 ---
 
@@ -64,8 +67,11 @@ The API is now live at `http://localhost:5000`.
    bash
    pip install -r requirements.txt
    
-3. **(Optional) Configure Google Maps API**: 
-   If you plan to use Google Maps for elevation data, paste your API key inside a file named `google_api_key.txt` in the root directory.
+3. **Configure API Keys**: Create a `.env` file in the root directory to store your private keys securely.
+   text
+   GOOGLE_API_KEY=your_google_maps_key_here
+   OPENWEATHER_API_KEY=your_openweather_key_here
+   
 4. **Run the API**:
    bash
    python app.py
@@ -91,9 +97,10 @@ This will output the HTTP status codes and the formatted JSON responses from the
 All endpoints expect a `POST` request with an `application/json` Content-Type.
 
 ### 1. Flight Time Estimation (`/api/flight-time`)
+
 Estimates flight time using acceleration and cornering kinematics.
 * **Payload**:
-  json
+  ```json
   {
     "waypoints": [
       [37.9838, 23.7275, 50],
@@ -109,9 +116,10 @@ Estimates flight time using acceleration and cornering kinematics.
   *(Reference: `time_input.json`)*
 
 ### 2. Area Calculations (`/api/area/polygon` & `/api/area/circle`)
+
 Calculates the area of WGS84 coordinates in square meters and hectares.
 * **Polygon Payload**:
-  json
+  ```json
   {
     "waypoints": [
       [37.9838, 23.7275],
@@ -122,12 +130,18 @@ Calculates the area of WGS84 coordinates in square meters and hectares.
   }
   
   *(Reference: `polygon_input.json`)*
-* **Circle Payload**: `{ "radius": 150.5 }`
+* **Circle Payload**: 
+  json
+  { 
+    "radius": 150.5 
+  }
+  
 
 ### 3. Photogrammetry Metrics (`/api/camera`)
+
 Calculates GSD and grid spacing. Accepts either exact Sensor specs OR FOV angles.
 * **Payload (Sensor Method)**:
-  json
+  ```json
   {
     "altitude": 60,
     "sensor_w": 13.2,
@@ -144,9 +158,10 @@ Calculates GSD and grid spacing. Accepts either exact Sensor specs OR FOV angles
   *(Reference: `camera_input_fov.json`)*
 
 ### 4. Terrain Following (`/api/adjust-altitude`)
+
 Densifies a trajectory and adjusts altitudes to maintain constant AGL over terrain.
 * **Payload**:
-  json
+  ```json
   {
     "trajectory": [
       {"lat": 40.57353, "lon": 22.9970623, "alt": 60},
@@ -194,3 +209,6 @@ Evaluates current, real-time weather conditions at a specific Location (POI) usi
       }
     ]
   }
+  
+  *(Reference: `weather_input.json`)*
+  *(Note: Requires `OPENWEATHER_API_KEY` to be set in your `.env` file).*
