@@ -44,7 +44,7 @@ def flight_metrics_endpoint():
     except Exception as e:
         return create_json_response(json.dumps({"error": str(e)}), 400)
 
-@app.route('/api/adjust-altitude', methods=['POST'])
+@app.route('/api/v1/path-utils/adjust-altitude', methods=['POST'])
 def adjust_altitude_endpoint():
     try:
         raw_json = request.get_data(as_text=True)
@@ -53,7 +53,7 @@ def adjust_altitude_endpoint():
     except Exception as e:
         return create_json_response(json.dumps({"error": str(e)}), 500)
 
-@app.route('/api/weather-filter', methods=['POST'])
+@app.route('/api/v1/path-utils/weather-filter', methods=['POST'])
 def filter_fleet_endpoint():
     try:
         raw_json = request.get_data(as_text=True)
@@ -62,7 +62,7 @@ def filter_fleet_endpoint():
     except Exception as e:
         return create_json_response(json.dumps({"error": str(e)}), 400)
 
-@app.route('/api/transitions/stepped', methods=['POST'])
+@app.route('/api/v1/path-utils/transitions/stepped', methods=['POST'])
 def transitions_stepped_endpoint():
     try:
         raw_json = request.get_data(as_text=True)

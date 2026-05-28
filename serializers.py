@@ -7,20 +7,26 @@ import camera_related_utils
 import altitude_elevation_adjustment as alt_adj
 import weather_filtering
 import transitioning_waypoints
+import os
 
+from waypoint_utils import transform_waypoints_to_trajectory, transform_trajectory_to_waypoints, coordinates_array_to_lat_lon
+
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 def process_trajectory_transitions(json_input):
     """Parses JSON for stepped-altitude transitions and returns the calculated trajectory."""
     data = json.loads(json_input)
 
-    start_point = data.get('start_point')
-    end_point = data.get('end_point')
+    start_point = coordinates_array_to_lat_lon(data.get('start_point'))
+    end_point = coordinates_array_to_lat_lon(data.get('end_point'))
     offset_level = data.get('offset_level', 0)
     offset_step = data.get('offset_step', 5.0)
 
     # New optional parameter (defaults to None if missing)
     transitioning_altitude = data.get('transitioning_altitude')
-
     if not start_point or not end_point:
         raise ValueError("Missing 'start_point' or 'end_point' in payload.")
 
@@ -32,7 +38,7 @@ def process_trajectory_transitions(json_input):
         transitioning_altitude=transitioning_altitude  # Passed here
     )
 
-    return json.dumps({"trajectory": trajectory})
+    return json.dumps({"trajectory": transform_trajectory_to_waypoints(trajectory)})
 
 def process_fleet_filtering(json_input):
     """Transforms JSON, filters drone fleet by weather, returns JSON."""
@@ -115,13 +121,13 @@ def process_altitude_adjustment(json_input):
     """Transforms JSON lists/dicts, adjusts terrain, returns JSON list."""
     data = json.loads(json_input)
 
-    trajectory = data['trajectory']
+    trajectory = transform_waypoints_to_trajectory(data['trajectory'])
     reference_point = data['reference_point']
 
     # Setup Provider
     provider_type = data.get('provider', 'open-meteo').lower()
     if provider_type == 'google':
-        api_key = data.get('api_key', 'google_api_key.txt')
+        api_key = os.getenv('GOOGLE_API_KEY')
         provider = alt_adj.GoogleMapsProvider(api_key)
     else:
         provider = alt_adj.OpenMeteoProvider()
@@ -137,6 +143,6 @@ def process_altitude_adjustment(json_input):
     output = {
         "original_count": len(trajectory),
         "adjusted_count": len(adjusted_trajectory),
-        "trajectory": adjusted_trajectory
+        "trajectory": transform_trajectory_to_waypoints(adjusted_trajectory)
     }
     return json.dumps(output)

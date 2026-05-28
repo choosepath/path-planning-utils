@@ -1,16 +1,29 @@
-FROM python:3.11
+# ---------- builder ----------
+FROM python:3.11-slim AS builder
+
+ENV INSTALL_PATH=/utilities-cp
+WORKDIR ${INSTALL_PATH}
+
+RUN python -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir gunicorn
+
+# ---------- runtime ----------
+FROM python:3.11-slim
 
 LABEL authors="savvas"
 
-# Fix the warning from your logs by adding the '=' sign
 ENV INSTALL_PATH=/utilities-cp
-RUN mkdir -p ${INSTALL_PATH}
+ENV PATH="/opt/venv/bin:$PATH"
+
 WORKDIR ${INSTALL_PATH}
 
-COPY requirements.txt .
-RUN pip install -r requirements.txt
-
+COPY --from=builder /opt/venv /opt/venv
 COPY . .
+
 EXPOSE 5000
 
-CMD ["python", "app.py"]
+CMD ["gunicorn", "--workers", "4", "--timeout", "0", "-b", "0.0.0.0:5000", "app:app"]
