@@ -63,7 +63,7 @@ def process_time_estimation(json_input):
     data = json.loads(json_input)
 
     # Extract and convert list of lists to list of tuples
-    waypoints = [tuple(wp) for wp in data['waypoints']]
+    waypoints = transform_waypoints_to_trajectory(data.get('waypoints'))
     max_speed = data['max_speed']
     accel = data.get('accel', 2.0)
     min_turn_speed = data.get('min_turn_speed', 1.0)

@@ -8,7 +8,7 @@ def create_json_response(json_string, status=200):
     """Helper to return raw JSON strings as proper Flask HTTP responses."""
     return Response(json_string, status=status, mimetype='application/json')
 
-@app.route('/api/flight-time', methods=['POST'])
+@app.route('/api/v1/path-utils/flight-time', methods=['POST'])
 def flight_time_endpoint():
     try:
         raw_json = request.get_data(as_text=True)

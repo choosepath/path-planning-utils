@@ -34,13 +34,13 @@ def estimate_uav_flight_time(waypoints, max_speed, accel=2.0, min_turn_speed=1.0
     local_points = []
 
     for wp in waypoints:
-        lat, lon = wp[0], wp[1]
-        alt = wp[2] if len(wp) > 2 else 0
+        lat, lon = wp['lat'], wp['lon']
+        alt = wp['alt'] if len(wp) > 2 else 0
 
         # Convert degrees to radians
-        d_lat = math.radians(lat - origin[0])
-        d_lon = math.radians(lon - origin[1])
-        lat_avg = math.radians((lat + origin[0]) / 2.0)
+        d_lat = math.radians(lat - origin['lat'])
+        d_lon = math.radians(lon - origin['lon'])
+        lat_avg = math.radians((lat + origin['alt']) / 2.0)
 
         # Flat earth projection
         x = d_lon * R_EARTH * math.cos(lat_avg)

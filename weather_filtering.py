@@ -41,7 +41,8 @@ def fetch_weather(api_key, lat, lon):
         return {
             "precip_total": rain_mmh + snow_mmh,
             "wind_ms": response.get("wind", {}).get("speed", 0.0),
-            "temp_c": response.get("main", {}).get("temp", 20.0)
+            "temp_c": response.get("main", {}).get("temp", 20.0),
+            "weather": response.get("weather", [{}])[0]
         }
     except Exception as e:
         raise RuntimeError(f"OpenWeatherMap API failed: {e}")
