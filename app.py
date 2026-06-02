@@ -35,7 +35,7 @@ def circle_area_endpoint():
     except Exception as e:
         return create_json_response(json.dumps({"error": str(e)}), 400)
 
-@app.route('/api/camera', methods=['POST'])
+@app.route('/api/v1/path-utils/camera', methods=['POST'])
 def flight_metrics_endpoint():
     try:
         raw_json = request.get_data(as_text=True)
