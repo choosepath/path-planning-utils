@@ -70,6 +70,14 @@ def transitions_stepped_endpoint():
         return create_json_response(result_json)
     except Exception as e:
         return create_json_response(json.dumps({"error": str(e)}), 400)
+    
+@app.route('/api/health/liveness', methods=['GET'])
+def liveness_endpoint():
+    return create_json_response(json.dumps({"status": "healthy"}))
+
+@app.route('/api/health/readiness', methods=['GET'])
+def readiness_endpoint():
+    return create_json_response(json.dumps({"status": "ready"}))
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
