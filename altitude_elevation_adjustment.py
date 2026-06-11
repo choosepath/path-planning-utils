@@ -67,23 +67,35 @@ class GoogleMapsProvider(ElevationProvider):
             return [0.0] * len(coordinates)
 
         elevations = []
-        chunk_size = 400
+        chunk_size = 200
 
         for i in range(0, len(coordinates), chunk_size):
             chunk = coordinates[i:i + chunk_size]
-            locations = "|".join([f"{lat},{lon}" for lat, lon in chunk])
+            locations = "|".join([f"{lat:.6f},{lon:.6f}" for lat, lon in chunk])
 
             url = "https://maps.googleapis.com/maps/api/elevation/json"
 
             try:
-                r = requests.get(url, params={"locations": locations, "key": self.api_key}, timeout=10)
-                result = r.json()
+                r = requests.get(
+                    url,
+                    params={
+                        "locations": locations,
+                        "key": self.api_key,
+                    },
+                    timeout=(3, 15),
+                )
 
-                if result.get('status') == 'OK':
-                    elevations.extend([item['elevation'] for item in result['results']])
+                print(f"[Google] Status code: {r.status_code}, points: {len(chunk)}")
+
+                result = r.json()
+                status = result.get("status")
+
+                if status == "OK":
+                    elevations.extend([item["elevation"] for item in result["results"]])
                 else:
-                    print(f"[Google] API Error: {result.get('status')} - {result.get('error_message', '')}")
+                    print(f"[Google] API Error: {status} - {result.get('error_message', '')}")
                     elevations.extend([0.0] * len(chunk))
+
             except Exception as e:
                 print(f"[Google] Request Failed: {e}")
                 elevations.extend([0.0] * len(chunk))
