@@ -1,8 +1,31 @@
 {
-  "trajectory": [
-    {"lat": 40.57353, "lon": 22.9970623, "alt": 60},
-    {"lat": 40.580472, "lon": 22.9977901, "alt": 60}
-  ],
+  "trajectory": {
+    "portion": 1,
+    "waypoints": [
+      {
+        "id": 1,
+        "point": {
+          "type": "Point",
+          "coordinates": [
+            22.9970623,
+            40.57353
+          ]
+        },
+        "altitude": 60
+      },
+      {
+        "id": 2,
+        "point": {
+          "type": "Point",
+          "coordinates": [
+            22.9977901,
+            40.580472
+          ]
+        },
+        "altitude": 60
+      }
+    ]
+  },
   "reference_point": {
     "lat": 40.57353,
     "lon": 22.9970623,

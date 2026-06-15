@@ -8,14 +8,14 @@ RESOURCES_DIR = "resources"
 
 # Map the JSON filenames to their corresponding API endpoints
 TEST_CASES = {
-    "time_input.json": "/api/flight-time",
+    "time_input.json": "/api/v1/path-utils/flight-time",
     "polygon_input.json": "/api/area/polygon",
     "circle_input.json": "/api/area/circle",
-    "camera_input_fov.json": "/api/camera",
-    "camera_input_sensor.json": "/api/camera",
-    "altitude_input.json": "/api/adjust-altitude",
-    "weather_input.json": "/api/weather-filter",
-    "transitions_input.json": "/api/transitions/stepped"
+    "camera_input_fov.json": "/api/v1/path-utils/camera",
+    "camera_input_sensor.json": "/api/v1/path-utils/camera",
+    "altitude_input.json": "/api/v1/path-utils/adjust-altitude",
+    "weather_input.json": "/api/v1/path-utils/weather-filter",
+    "transitions_input.json": "/api/v1/path-utils/transitions/stepped"
 }
 
 
