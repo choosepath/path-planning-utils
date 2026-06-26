@@ -1,12 +1,24 @@
 from flask import Flask, request, Response
 import json
 import serializers
+import time
 
 app = Flask(__name__)
 
 def create_json_response(json_string, status=200):
     """Helper to return raw JSON strings as proper Flask HTTP responses."""
     return Response(json_string, status=status, mimetype='application/json')
+
+
+@app.before_request
+def before():
+    request.start_time = time.perf_counter()
+
+@app.after_request
+def after(response):
+    duration = time.perf_counter() - request.start_time
+    print(f"{request.path} took {duration:.3f}s")
+    return response
 
 @app.route('/api/v1/path-utils/flight-time', methods=['POST'])
 def flight_time_endpoint():

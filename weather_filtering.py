@@ -31,19 +31,31 @@ def fetch_weather(api_key, lat, lon):
     url = f"http://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={api_key}&units=metric"
 
     try:
-        response = requests.get(url).json()
-        if response.get("cod") != 200:
-            raise ValueError(response.get("message", "Unknown API error"))
+        response = requests.get(url,
+            params={
+                "lat": lat,
+                "lon": lon,
+                "appid": api_key,
+                "units": "metric",
+            },
+            timeout=(3, 5))
 
-        rain_mmh = response.get("rain", {}).get("1h", 0.0)
-        snow_mmh = response.get("snow", {}).get("1h", 0.0)
+        response.raise_for_status()
+        data = response.json()
+        if data.get("cod") != 200:
+            raise ValueError(data.get("message", "Unknown API error"))
+
+        rain_mmh = data.get("rain", {}).get("1h", 0.0)
+        snow_mmh = data.get("snow", {}).get("1h", 0.0)
 
         return {
             "precip_total": rain_mmh + snow_mmh,
-            "wind_ms": response.get("wind", {}).get("speed", 0.0),
-            "temp_c": response.get("main", {}).get("temp", 20.0),
-            "weather": response.get("weather", [{}])[0]
+            "wind_ms": data.get("wind", {}).get("speed", 0.0),
+            "temp_c": data.get("main", {}).get("temp", 20.0),
+            "weather": data.get("weather", [{}])[0],
         }
+    except requests.Timeout:
+        raise RuntimeError("OpenWeatherMap API timed out")
     except Exception as e:
         raise RuntimeError(f"OpenWeatherMap API failed: {e}")
 
