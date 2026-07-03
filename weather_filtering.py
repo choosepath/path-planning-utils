@@ -38,7 +38,7 @@ def fetch_weather(api_key, lat, lon):
                 "appid": api_key,
                 "units": "metric",
             },
-            timeout=(3, 5))
+            timeout=(4, 6))
 
         response.raise_for_status()
         data = response.json()
