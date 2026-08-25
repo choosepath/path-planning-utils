@@ -9,12 +9,13 @@ import weather_filtering
 import transitioning_waypoints
 import os
 
-from waypoint_utils import transform_waypoints_to_trajectory, transform_trajectory_to_waypoints, coordinates_array_to_lat_lon
+from waypoint_utils import point_to_lat_lon, transform_waypoints_to_trajectory, transform_trajectory_to_waypoints, coordinates_array_to_lat_lon
 
 from dotenv import load_dotenv
 
 # Load environment variables from .env file
 load_dotenv()
+
 
 def process_trajectory_transitions(json_input):
     """Parses JSON for stepped-altitude transitions and returns the calculated trajectory."""
@@ -39,6 +40,7 @@ def process_trajectory_transitions(json_input):
     )
 
     return json.dumps({"trajectory": transform_trajectory_to_waypoints(trajectory)})
+
 
 def process_fleet_filtering(json_input):
     """Transforms JSON, filters drone fleet by weather, returns JSON."""
@@ -121,8 +123,9 @@ def process_altitude_adjustment(json_input):
     """Transforms JSON lists/dicts, adjusts terrain, returns JSON list."""
     data = json.loads(json_input)
 
-    trajectory = transform_waypoints_to_trajectory(data['trajectory'])
-    reference_point = data['reference_point']
+    trajectory = data.get("trajectory").get("waypoints")
+
+    reference_point = point_to_lat_lon(data['referencePoint'])
 
     # Setup Provider
     provider_type = data.get('provider', 'open-meteo').lower()
@@ -143,6 +146,6 @@ def process_altitude_adjustment(json_input):
     output = {
         "original_count": len(trajectory),
         "adjusted_count": len(adjusted_trajectory),
-        "trajectory": transform_trajectory_to_waypoints(adjusted_trajectory)
+        "trajectory": { "waypoints": adjusted_trajectory }
     }
     return json.dumps(output)

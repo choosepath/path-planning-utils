@@ -59,7 +59,8 @@ class GoogleMapsProvider(ElevationProvider):
         self.api_key = api_key or os.getenv('GOOGLE_API_KEY')
 
         if not self.api_key:
-            print("[Google] Warning: No API key provided and GOOGLE_API_KEY not found in environment.")
+            print(
+                "[Google] Warning: No API key provided and GOOGLE_API_KEY not found in environment.")
 
     def get_elevations(self, coordinates):
         if not self.api_key:
@@ -71,7 +72,8 @@ class GoogleMapsProvider(ElevationProvider):
 
         for i in range(0, len(coordinates), chunk_size):
             chunk = coordinates[i:i + chunk_size]
-            locations = "|".join([f"{lat:.6f},{lon:.6f}" for lat, lon in chunk])
+            locations = "|".join(
+                [f"{lat:.6f},{lon:.6f}" for lat, lon in chunk])
 
             url = "https://maps.googleapis.com/maps/api/elevation/json"
 
@@ -85,15 +87,18 @@ class GoogleMapsProvider(ElevationProvider):
                     timeout=(3, 15),
                 )
 
-                print(f"[Google] Status code: {r.status_code}, points: {len(chunk)}")
+                print(
+                    f"[Google] Status code: {r.status_code}, points: {len(chunk)}")
 
                 result = r.json()
                 status = result.get("status")
 
                 if status == "OK":
-                    elevations.extend([item["elevation"] for item in result["results"]])
+                    elevations.extend([item["elevation"]
+                                      for item in result["results"]])
                 else:
-                    print(f"[Google] API Error: {status} - {result.get('error_message', '')}")
+                    print(
+                        f"[Google] API Error: {status} - {result.get('error_message', '')}")
                     elevations.extend([0.0] * len(chunk))
 
             except Exception as e:
@@ -123,11 +128,11 @@ def adjust_trajectory_to_terrain(trajectory, reference_point, provider: Elevatio
     interpolated_path.append(p_start)
 
     for i in range(len(trajectory) - 1):
-        p1 = trajectory[i]
-        p2 = trajectory[i + 1]
+        p1 = trajectory[i]['position']['coordinates']
+        p2 = trajectory[i + 1]['position']['coordinates']
 
         # Calculate horizontal distance
-        dist = geodesic((p1['lat'], p1['lon']), (p2['lat'], p2['lon'])).meters
+        dist = geodesic((p1[1], p1[0]), (p2[1], p2[0])).meters
 
         # Handle vertical-only movements explicitly
         if dist == 0.0:
@@ -137,25 +142,35 @@ def adjust_trajectory_to_terrain(trajectory, reference_point, provider: Elevatio
             for j in range(1, num_segments):
                 fraction = j / num_segments
 
-                new_lat = p1['lat'] + (p2['lat'] - p1['lat']) * fraction
-                new_lon = p1['lon'] + (p2['lon'] - p1['lon']) * fraction
-                new_alt = p1['alt'] + (p2['alt'] - p1['alt']) * fraction
+                new_lat = p1[1] + (p2[1] - p1[1]) * fraction
+                new_lon = p1[0] + (p2[0] - p1[0]) * fraction
+                new_alt = p1[2] + (p2[2] - p1[2]) * fraction
 
                 interpolated_path.append({
-                    'lat': new_lat,
-                    'lon': new_lon,
-                    'alt': new_alt,
+                    'actions': [],
+                    'position': {
+                        'type': 'Point',
+                        'coordinates': [new_lon, new_lat, new_alt]
+                    },
+                    'sequenceIndex': trajectory[i]['sequenceIndex'],
                     'is_original': False
                 })
 
         # Add the next original waypoint
         p_next = p2.copy()
-        p_next['is_original'] = True
-        interpolated_path.append(p_next)
+        interpolated_path.append({
+            'actions': [],
+            'position': {
+                'type': 'Point',
+                'coordinates': [p_next[0], p_next[1], p_next[2]]
+            },
+            'sequenceIndex': trajectory[i + 1]['sequenceIndex'],
+            'is_original': True
+        })
 
     # --- Phase 2: Fetch Elevations ---
     coords_to_query = [(reference_point['lat'], reference_point['lon'])]
-    coords_to_query += [(p['lat'], p['lon']) for p in interpolated_path]
+    coords_to_query += [(p['position']['coordinates'][1], p['position']['coordinates'][0]) for p in interpolated_path]
 
     all_elevations = provider.get_elevations(coords_to_query)
 
@@ -172,25 +187,25 @@ def adjust_trajectory_to_terrain(trajectory, reference_point, provider: Elevatio
     for i, p in enumerate(interpolated_path):
         ground_elev = path_ground_elevs[i]
         delta = ground_elev - ref_ground_elev
-        p['alt'] = round(p['alt'] + delta, 2)
+        p['position']['coordinates'][2] = round(p['position']['coordinates'][2] + delta, 2)
         p['ground_elev'] = ground_elev
         adjusted_candidates.append(p)
 
     final_path.append(adjusted_candidates[0])
-    last_kept_alt = adjusted_candidates[0]['alt']
+    last_kept_alt = adjusted_candidates[0]['position']['coordinates'][2]
 
     for i in range(1, len(adjusted_candidates)):
         current_p = adjusted_candidates[i]
 
         is_mandatory = current_p.get('is_original', False)
-        diff = abs(current_p['alt'] - last_kept_alt)
+        diff = abs(current_p['position']['coordinates'][2] - last_kept_alt)
 
         if is_mandatory:
             final_path.append(current_p)
-            last_kept_alt = current_p['alt']
+            last_kept_alt = current_p['position']['coordinates'][2]
         elif diff >= vertical_step:
             final_path.append(current_p)
-            last_kept_alt = current_p['alt']
+            last_kept_alt = current_p['position']['coordinates'][2]
         else:
             pass
 
@@ -199,15 +214,16 @@ def adjust_trajectory_to_terrain(trajectory, reference_point, provider: Elevatio
 
     return final_path
 
+
 if __name__ == "__main__":
     # Define Home (Takeoff location)
     home = {'lat': 40.57353, 'lon': 22.9970623, 'alt': 0}
 
     # Added a vertical ascent example to the start of the mission
     mission = [
-        {'lat': 40.57353, 'lon': 22.9970623, 'alt': 0},   # Ground
-        {'lat': 40.57353, 'lon': 22.9970623, 'alt': 60},  # Vertical Climb
-        {'lat': 40.580472, 'lon': 22.9977901, 'alt': 60}  # Horizontal Flight
+        {'sequenceIndex': 0, 'position': {'coordinates': [22.9970623, 40.57353, 0]}},   # Ground
+        {'sequenceIndex': 1, 'position': {'coordinates': [22.9970623, 40.57353, 60]}},  # Vertical Climb
+        {'sequenceIndex': 2, 'position': {'coordinates': [22.9977901, 40.580472, 60]}}  # Horizontal Flight
     ]
 
     # Initialize the provider (automatically reads from .env)
@@ -225,4 +241,5 @@ if __name__ == "__main__":
     print(f"Terrain Following Waypoints: {len(result)}")
 
     for wp in result:
-        print(f"Lat: {wp['lat']:.5f} | Alt: {wp['alt']}m (Ground: {wp.get('ground_elev', 0)}m)")
+        print(
+            f"Lat: {wp['position']['coordinates'][1]:.5f} | Alt: {wp['position']['coordinates'][2]}m (Ground: {wp.get('ground_elev', 0)}m)")
