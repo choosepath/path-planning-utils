@@ -18,12 +18,12 @@ def generate_connecting_trajectory(start_point, end_point, offset_level=0, offse
 
     # 1. Standardize Inputs
     if isinstance(start_point, (list, tuple)):
-        lat1, lon1, alt1 = start_point
+        lat1, lon1, alt1 = start_point[1], start_point[0], start_point[2]
     else:
         lat1, lon1, alt1 = start_point['lat'], start_point['lon'], start_point['alt']
 
     if isinstance(end_point, (list, tuple)):
-        lat2, lon2, alt2 = end_point
+        lat2, lon2, alt2 = end_point[1], end_point[0], end_point[2]
     else:
         lat2, lon2, alt2 = end_point['lat'], end_point['lon'], end_point['alt']
 
@@ -38,20 +38,56 @@ def generate_connecting_trajectory(start_point, end_point, offset_level=0, offse
     trajectory = []
 
     # Waypoint A: Start Point
-    trajectory.append({'lat': lat1, 'lon': lon1, 'alt': alt1})
+    trajectory.append({
+        "position": {
+            "type": "Point",
+            "coordinates": [
+                lon1,
+                lat1,
+                alt1
+            ],
+        }
+    })
 
     # Waypoint B: Vertical Transition to Cruise
     # Use != instead of > to allow descending to a lower transit altitude if forced by the user
     if cruise_alt != alt1:
-        trajectory.append({'lat': lat1, 'lon': lon1, 'alt': cruise_alt})
+        trajectory.append({
+            "position": {
+                "type": "Point",
+                "coordinates": [
+                    lon1,
+                    lat1,
+                    cruise_alt
+                ],
+            }
+        })
 
     # Waypoint C: Horizontal Transit
     if lat1 != lat2 or lon1 != lon2:
-        trajectory.append({'lat': lat2, 'lon': lon2, 'alt': cruise_alt})
+        trajectory.append({
+            "position": {
+                "type": "Point",
+                "coordinates": [
+                    lon2,
+                    lat2,
+                    cruise_alt
+                ],
+            }
+        })
 
     # Waypoint D: Vertical Transition to End
     if cruise_alt != alt2:
-        trajectory.append({'lat': lat2, 'lon': lon2, 'alt': alt2})
+        trajectory.append({
+            "position": {
+                "type": "Point",
+                "coordinates": [
+                    lon2,
+                    lat2,
+                    alt2
+                ],
+            }
+        })
 
     return trajectory
 

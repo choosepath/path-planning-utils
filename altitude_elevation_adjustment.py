@@ -169,7 +169,7 @@ def adjust_trajectory_to_terrain(trajectory, reference_point, provider: Elevatio
         })
 
     # --- Phase 2: Fetch Elevations ---
-    coords_to_query = [(reference_point['lat'], reference_point['lon'])]
+    coords_to_query = [(reference_point['coordinates'][1], reference_point['coordinates'][0])]
     coords_to_query += [(p['position']['coordinates'][1], p['position']['coordinates'][0]) for p in interpolated_path]
 
     all_elevations = provider.get_elevations(coords_to_query)

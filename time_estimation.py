@@ -34,8 +34,8 @@ def estimate_uav_flight_time(waypoints, max_speed, accel=2.0, min_turn_speed=1.0
     local_points = []
 
     for wp in waypoints:
-        lat, lon = wp['lat'], wp['lon']
-        alt = wp['alt'] if len(wp) > 2 else 0
+        lat, lon = wp['position']['coordinates'][1], wp['position']['coordinates'][0]
+        alt = wp['position']['coordinates'][2] if len(wp['position']['coordinates']) > 2 else 0
 
         # Convert degrees to radians
         d_lat = math.radians(lat - origin['lat'])
@@ -143,11 +143,36 @@ if __name__ == '__main__':
     # Define Waypoints (Lat, Lon, Alt_meters)
     # This approximates a square path of roughly 100m sides
     mission_route = [
-        (37.9838, 23.7275, 50),  # Start
-        (37.9847, 23.7275, 50),  # Point B (~100m North)
-        (37.9847, 23.7286, 50),  # Point C (~100m East)
-        (37.9838, 23.7286, 50),  # Point D (~100m South)
-        (37.9838, 23.7275, 50)  # Return to Start
+        {
+            "position": {
+                "type": "Point",
+                "coordinates": [23.7275, 37.9838, 50]
+            }
+        },
+        {
+            "position": {
+                "type": "Point",
+                "coordinates": [23.7275, 37.9847, 50]
+            }
+        },
+        {
+            "position": {
+                "type": "Point",
+                "coordinates": [23.7286, 37.9847, 50]
+            }
+        },
+        {
+            "position": {
+                "type": "Point",
+                "coordinates": [23.7286, 37.9838, 50]
+            }
+        },
+        {
+            "position": {
+                "type": "Point",
+                "coordinates": [23.7275, 37.9838, 50]
+            }
+        }
     ]
 
     # Case 1: Low speed (Your old model would likely work here)
