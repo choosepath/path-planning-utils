@@ -9,8 +9,6 @@ import weather_filtering
 import transitioning_waypoints
 import os
 
-from waypoint_utils import point_to_lat_lon, transform_waypoints_to_trajectory, transform_trajectory_to_waypoints, coordinates_array_to_lat_lon
-
 from dotenv import load_dotenv
 
 # Load environment variables from .env file
@@ -21,8 +19,8 @@ def process_trajectory_transitions(json_input):
     """Parses JSON for stepped-altitude transitions and returns the calculated trajectory."""
     data = json.loads(json_input)
 
-    start_point = coordinates_array_to_lat_lon(data.get('start_point'))
-    end_point = coordinates_array_to_lat_lon(data.get('end_point'))
+    start_point = data.get('start_point')
+    end_point = data.get('end_point')
     offset_level = data.get('offset_level', 0)
     offset_step = data.get('offset_step', 5.0)
 
@@ -39,7 +37,7 @@ def process_trajectory_transitions(json_input):
         transitioning_altitude=transitioning_altitude  # Passed here
     )
 
-    return json.dumps({"trajectory": transform_trajectory_to_waypoints(trajectory)})
+    return json.dumps({"trajectory": { "waypoints": trajectory }})
 
 
 def process_fleet_filtering(json_input):
@@ -65,7 +63,7 @@ def process_time_estimation(json_input):
     data = json.loads(json_input)
 
     # Extract and convert list of lists to list of tuples
-    waypoints = transform_waypoints_to_trajectory(data.get('trajectory'))
+    waypoints = data.get('trajectory', {}).get('waypoints', [])
     max_speed = data['max_speed']
     accel = data.get('accel', 2.0)
     min_turn_speed = data.get('min_turn_speed', 1.0)
@@ -125,7 +123,7 @@ def process_altitude_adjustment(json_input):
 
     trajectory = data.get("trajectory").get("waypoints")
 
-    reference_point = point_to_lat_lon(data['referencePoint'])
+    reference_point = data['referencePoint']
 
     # Setup Provider
     provider_type = data.get('provider', 'open-meteo').lower()

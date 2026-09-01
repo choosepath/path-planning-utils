@@ -147,7 +147,8 @@ def adjust_trajectory_to_terrain(trajectory, reference_point, provider: Elevatio
                 new_alt = p1[2] + (p2[2] - p1[2]) * fraction
 
                 interpolated_path.append({
-                    'actions': [],
+                    'actions': trajectory[i]['actions'],
+                    'role': trajectory[i]['role'],
                     'position': {
                         'type': 'Point',
                         'coordinates': [new_lon, new_lat, new_alt]
@@ -159,7 +160,8 @@ def adjust_trajectory_to_terrain(trajectory, reference_point, provider: Elevatio
         # Add the next original waypoint
         p_next = p2.copy()
         interpolated_path.append({
-            'actions': [],
+            'actions': trajectory[i + 1]['actions'],
+            'role': trajectory[i + 1]['role'],
             'position': {
                 'type': 'Point',
                 'coordinates': [p_next[0], p_next[1], p_next[2]]
@@ -169,7 +171,7 @@ def adjust_trajectory_to_terrain(trajectory, reference_point, provider: Elevatio
         })
 
     # --- Phase 2: Fetch Elevations ---
-    coords_to_query = [(reference_point['lat'], reference_point['lon'])]
+    coords_to_query = [(reference_point['coordinates'][1], reference_point['coordinates'][0])]
     coords_to_query += [(p['position']['coordinates'][1], p['position']['coordinates'][0]) for p in interpolated_path]
 
     all_elevations = provider.get_elevations(coords_to_query)
