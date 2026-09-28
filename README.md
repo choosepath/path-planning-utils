@@ -254,13 +254,10 @@ Densifies a trajectory and adjusts altitudes to maintain constant AGL over terra
         ]
     },
     "reference_point": {
-      "lat": 40.57353,
-      "lon": 22.9970623,
-      "alt": 0
+      "type": "Point",
+      "coordinates": [22.9970623, 40.57353, 0]
     },
     "provider": "google",
-    "interpolation_step": 10,
-    "vertical_step": 3
   }
 
   *(Reference: `altitude_input.json`)*

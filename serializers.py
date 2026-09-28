@@ -133,12 +133,9 @@ def process_altitude_adjustment(json_input):
     else:
         provider = alt_adj.OpenMeteoProvider()
 
-    interpolation_step = data.get('interpolation_step', 10)
-    vertical_step = data.get('vertical_step', 3)
-
     # Call underlying function
     adjusted_trajectory = alt_adj.adjust_trajectory_to_terrain(
-        trajectory, reference_point, provider, interpolation_step, vertical_step
+        trajectory, reference_point, provider
     )
 
     output = {

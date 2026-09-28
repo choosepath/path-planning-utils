@@ -31,7 +31,5 @@
     "lon": 22.9970623,
     "alt": 0
   },
-  "provider": "google",
-  "interpolation_step": 10,
-  "vertical_step": 3
+  "provider": "google"
 }
