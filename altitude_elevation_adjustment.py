@@ -22,7 +22,7 @@ class ElevationProvider(ABC):
 class OpenMeteoProvider(ElevationProvider):
     def get_elevations(self, coordinates):
         elevations = []
-        chunk_size = 500
+        chunk_size = 20
 
         for i in range(0, len(coordinates), chunk_size):
             chunk = coordinates[i:i + chunk_size]
